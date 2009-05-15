@@ -2,7 +2,7 @@
   $.anchoring = {};
 
   $.fn.anchoring = function(settings) {
-    $.anchoring.settings = $.extend($.anchoring.settings, settings);
+    $.anchoring.settings = $.extend($.anchoring, settings);
 
     if (!$.anchoring.init) {
       $.anchoring.watch = setInterval(function() {

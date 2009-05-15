@@ -24,7 +24,7 @@ Easy to use:
         });
         
         // Initializer
-        $('a[rel=^anchor]').anchoring();
+        $('a[rel=^anchor]').anchoring({--additional settings--});
       });
 
   4. Start clicking away.
@@ -37,7 +37,7 @@ Upcoming Features
 
   - Using JSOND as the default callback method (instead of initial function with an AJAX success function() as the callback).
   - Optimization and testing in older browsers.
-
+  - Demo code and demo page.
 
 ------------------------------------------------------------------------------------------------
 
