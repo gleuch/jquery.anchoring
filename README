@@ -1,0 +1,47 @@
+jQuery.anchored
+
+------------------------------------------------------------------------------------------------
+
+A jQuery plugin to allow AJAX permalinking with anchoring tags.
+
+Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlikemagma.com>.
+
+------------------------------------------------------------------------------------------------
+
+Easy to use:
+
+  1. Add jquery.anchored.js to the page.
+  2. Add rel="anchor fn_name" to links, where "fn_name" is the name of the callback function.
+  3. Add the initalizer and callback function(s):
+      $(document).ready(
+
+        // Add callback function 'fn_name'
+        $.anchoring.addFunc('fn_name', function(href, data) {
+          $.anchoring.retrieve({url: href, success : function() {
+            -- return success callback --
+            }
+          });
+        });
+        
+        // Initializer
+        $('a[rel=^anchor]').anchoring();
+      });
+
+  4. Start clicking away.
+  
+  
+------------------------------------------------------------------------------------------------
+
+
+Upcoming Features
+
+  - Using JSOND as the default callback method (instead of initial function with an AJAX success function() as the callback).
+  - Optimization and testing in older browsers.
+
+
+------------------------------------------------------------------------------------------------
+
+
+Changelog
+
+  - (none yet...)
