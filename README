@@ -28,8 +28,94 @@ Easy to use:
       });
 
   4. Start clicking away.
-  
-  
+
+------------------------------------------------------------------------------------------------  
+
+Examples:
+
+Doing a custom AJAX request with default function.
+
+  JavaScript:
+
+  $(document).ready(function() {
+    // Adding special function
+    $.anchoring.addFunc('search', function(item) {
+      var url = (item && item.href && item.href != '' ? item.href : item);
+
+      if (item) $.anchoring.set(url);
+
+      if (url) {
+        $.anchoring.retrieve({
+          dataType:'HTML',
+          url : url,
+          success : function(response) {
+            $('#example').html(response);
+          }
+        }
+      });
+    });
+
+    // Initializing with default function (which evals our function previously added above.
+    $('a[rel^=anchor').anchoring({
+      default : function(item) {
+        $.anchoring.funcs.search(item ? item : $.anchoring.settings.location);
+      }
+    });
+  });
+
+
+  And some HTML:
+
+  <p><a href="/search?q=rails" rel="anchor search">Search for 'rails'</a></p>
+  <p><a href="/search?q=jQuery" rel="anchor search">Search for 'jQuery'</a></p>
+  <div id="example">
+    Search results will be replaced in this area.
+  </div>
+
+
+
+Or do custom functions based on HTML elements. These anchors will be defined by /#tagName.id
+
+  JavaScript:
+
+  $(document).ready(function() {
+    // Adding special function for tabbing
+    $.anchoring.addFunc('tab', function(item, data) {
+
+      // Use the setElement function instead of the set function
+      $.anchoring.setElement(item);
+
+      // Tab effects
+      $('#tabs .tab').removeClass('current');
+      $('#tabs #tab-'+data).addClass('current');
+
+      // Tab Area affects
+      $('#areas .area').hide();
+      $('#areas #area_'+data).show();
+    });
+
+    // Initialize and set default action.
+    $('a[rel^=anchor tab]').anchoring({
+      default : function() {
+        // Always enable the first tab.
+        $('#tab .tab:eq(0)').click();
+      }
+    });
+  });
+
+
+  And some HTML using the expansion of the rel attribute for more data:
+
+  <div id="tabs">
+    <a id="tab_rails" href="/search?q=rails" rel="anchor tab rails">Info about 'rails'</a>
+    <a id="tab_jQuery" href="/search?q=jQuery" rel="anchor tab jQuery">Info about 'jQuery'</a>
+  </div>
+  <div id="areas">
+   <p id="area_rails">This would be more info about 'rails'.</p>
+   <p id="area_jQuery">This would be more info about 'rails'.</p>
+  </div>
+
+
 ------------------------------------------------------------------------------------------------
 
 
@@ -44,4 +130,4 @@ Upcoming Features
 
 Changelog
 
-  - (none yet...)
+  - Moving certain vars into settings object and added default function.
