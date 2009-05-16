@@ -1,5 +1,5 @@
 /*
-jQuery.anchored
+jQuery.anchoring
 
 A jQuery plugin to allow AJAX permalinking with anchoring tags.
 Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlikemagma.com>.

@@ -1,4 +1,4 @@
-jQuery.anchored
+jQuery.anchoring
 
 ------------------------------------------------------------------------------------------------
 
@@ -10,7 +10,7 @@ Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlike
 
 Easy to use:
 
-  1. Add jquery.anchored.js to the page.
+  1. Add jquery.anchoring.js to the page.
   2. Add rel="anchor fn_name" to links, where "fn_name" is the name of the callback function.
   3. Add the initalizer and callback function(s):
       $(document).ready(
