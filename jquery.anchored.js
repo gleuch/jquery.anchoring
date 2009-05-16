@@ -1,42 +1,47 @@
+/*
+jQuery.anchored
+
+A jQuery plugin to allow AJAX permalinking with anchoring tags.
+Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlikemagma.com>.
+
+*/
 (function($) {
   $.anchoring = {};
 
   $.fn.anchoring = function(settings) {
-    $.anchoring.settings = $.extend($.anchoring, settings);
+    $.anchoring.settings = $.extend($.anchoring.settings, settings);
 
-    if (!$.anchoring.init) {
+    var r = this.click(function() {$.anchoring.analyze(this); return false;});
+
+    if (!$.anchoring.settings.init) {
       $.anchoring.watch = setInterval(function() {
-        if ($.anchoring.location != location.href) {
-          $.anchoring.location = location.href;
-          $.anchoring.sniff(true);
+        if ($.anchoring.settings.location != window.location.href) {
+          $.anchoring.settings.location = window.location.href;
+          $.anchoring.sniff();
         }
-      }, 250);
+      }, 100);
       $.anchoring.sniff();
     }
 
-    return this.click(function() {$.anchoring.analyze(this); return false;});
+    return r;
   };
 
 
 	$.extend($.anchoring, {
-    settings: {},
+    settings: {xhr : false, dataType : 'JSON', init : false, current : false, page : false, location : window.location.href},
     history : [],
-    init : false,
-    current : false,
-    page : false,
-    xhr : false,
-    location : window.location.href,
     loading : function() {},
-    loaded : function() {$.anchoring.xhr = false;},
+    loaded : function() {$.anchoring.settings.xhr = false;},
     retrieve : function(obj) {
-      if ($.anchoring.xhr) $.anchoring.xhr.abort();
-      obj = $.extend({url : $.anchoring.current, method : 'GET', dataType : "json", complete : function() {$.anchoring.loaded();}, beforeSend : function() {$.anchoring.loading();}, success : function(response) {$('body').html(response);}, error : function(request) {if (request.status > 0) alert('Sorry, but an unknown error has occured in fetching '+ $.anchoring.current +'.');}}, (typeof(obj) == 'object' ? obj : {}));
-      $.anchoring.xhr = $.ajax(obj);
+      if ($.anchoring.settings.xhr) $.anchoring.settings.xhr.abort();
+      obj = $.extend({url : $.anchoring.settings.current, cache : false, method : 'GET', dataType : $.anchoring.settings.dataType, complete : function() {$.anchoring.loaded();}, beforeSend : function() {$.anchoring.loading();}, success : function(response) {$(document).html(response);}, error : function(request) {if (request.status > 0) alert('Sorry, but an unknown error has occured in fetching '+ $.anchoring.settings.current +'.');}}, (typeof(obj) == 'object' ? obj : {}));
+      if (!(/^(http)/.test(obj.url))) obj.url = (window.location.href.replace(/(http|https)(\:\/\/)([a-z0-9\_\-\.\:]*)(\/)(.*)/i, '$1$2$3')) + obj.url;
+      $.anchoring.settings.xhr = $.ajax(obj);
     },
-    runAs : {
+    funcs : {
       /* Setting custom funcs in this obj allows for passing of additional funcs by specific pages. */
-      link : function(loc) {
-        if (loc && loc != '') $.anchoring.set(loc);
+      link : function(item) {
+        if (item && item.href && item.href != '') $.anchoring.set(item.href);
         $.anchoring.retrieve();
       }
     },
@@ -44,56 +49,71 @@
       var rel = $(item).attr('rel');
       if (/^([A-Z0-9\_\-\.]+)(\s)([A-Z0-9\_\-\.]+)/i.test(rel)) {
         var rels = rel.replace(/(\s){2,}/, '').split(' ');
-        var data = rel.replace(/^([A-Z0-9\_\-\.]+)(\s)([A-Z0-9\_\-\.]+)(.*)/i, '$4').replace(/(\s){2,}/, '').split(' ');
+        var data = rel.replace(/^([A-Z0-9\_\-\.]+)(\s)([A-Z0-9\_\-\.]+)(.*)/i, '$4').replace(/(\s){2,}/, '').replace(/^\s+|\s+$/m, '').split(' ');
+
         if (rels[1] != '' && $.anchoring.is_f(rels[1])) {
-          eval('$.anchoring.runAs.'+ rels[1])(item.href, data);
+          eval('$.anchoring.funcs.'+ rels[1])(item, data);
         } else {
-          $.anchoring.runAs.link(item.href, data);
+          $.anchoring.funcs.link(item, data);
         }
       } else {
-        $.anchoring.runAs.link(item.href);
+        $.anchoring.funcs.link(item);
       }
     },
     anchor : function(loc) {
-      $.anchoring.current = loc;
-      $.anchoring.history.unshift($.anchoring.current);
+      $.anchoring.settings.current = loc;
+      $.anchoring.history.unshift($.anchoring.settings.current);
     },
-    addFunc : function(name, func) {$.anchoring.runAs[name] = func;},
+    addFunc : function(name, func) {$.anchoring.funcs[name] = func;},
     browseHistory : function() {alert($.anchoring.history);},
-    parse : function(reload) {
+    parse : function() {
       if (/(\#)(.*)$/.test(window.location.href)) {
         $.anchoring.anchor(window.location.href.replace(/^(.*)(\#)(.*)$/, '$3'));
-        $.anchoring.location = window.location.href;
-      } else if (reload) {
-        window.location.reload();
+        $.anchoring.settings.location = window.location.href;
+      } else if (typeof($.anchoring.settings.default) == 'function') {
+        $.anchoring.settings.skip = true;
+        $.anchoring.settings.default();
+        $.anchoring.settings.skip = false;
       }
     },
+    setElement : function(item) {
+      if (item && item.id && item.id != '') $.anchoring.set(item.tagName.toLowerCase()+'.'+item.id);
+    },
     set : function(loc) {
-      var base = (/(\#)(.*)$/.test(location.href) ? window.location.href.replace(/^(.*)(\#)(.*)$/, '$1') : window.location.href);
-      var domain = base.replace(/(http|https)(\:\/\/)([a-z0-9\_\-\.\:]*)(\/)(.*)/i, '$1$2$3');
-      loc = loc.replace(new RegExp(domain, 'i'), '');
+      if ($.anchoring.settings.skip) {
+        $.anchoring.anchor('');
+        return;
+      }
 
-      if (loc != $.anchoring.current) {
+      var base = (/(\#)(.*)$/.test(location.href) ? window.location.href.replace(/^(.*)(\#)(.*)$/, '$1') : window.location.href.replace(/\#/, ''));
+      var domain = base.replace(/(http|https)(\:\/\/)([a-z0-9\_\-\.\:]*)(\/)(.*)/i, '$1$2$3');
+      loc = loc.replace(new RegExp(domain, 'i'), '').replace(/(#.*)?$/, '');
+
+      if (loc != base.replace(new RegExp(domain, 'i'), '').replace(/(#.*)?$/, '') && loc != $.anchoring.settings.current) {
         $.anchoring.anchor(loc);
-        $.anchoring.location = base +'#'+ loc;
-        window.location.href = $.anchoring.location;
+        $.anchoring.settings.location = base +'#'+ loc;
+        window.location.href = $.anchoring.settings.location;
         if ($.browser.msie) document.execCommand('Stop');
         window.stop();
       }
     },
     is_f : function(func) {
-      eval("var is_f = ($.anchoring.page != '' && typeof($.anchoring.runAs."+func+") == 'function');");
+      eval("var is_f = (typeof($.anchoring.funcs."+func+") == 'function');");
       return is_f;
     },
-    sniff : function(reload) {
-      $.anchoring.init = true;
-      $.anchoring.page = $('body').attr('class');
-      $.anchoring.parse(reload);
-      if ($.anchoring.current) {
-        if ($.anchoring.is_f($.anchoring.page)) {
-          eval("$.anchoring.runAs."+$.anchoring.page)();
+    sniff : function() {
+      $.anchoring.settings.init = true;
+      $.anchoring.parse();
+      if ($.anchoring.settings.current) {
+        // if matches an element id, then execute onclick command
+        if ($($.anchoring.settings.current.replace(/\./, '#')).length > 0) {
+          $($.anchoring.settings.current.replace(/\./, '#')).click();
+        // Else try to use default function
+        } else if (typeof($.anchoring.settings.default) == 'function') {
+          $.anchoring.settings.default($.anchoring.settings.current);
+        // Else do normal link request
         } else {
-          $.anchoring.runAs.link();
+          $.anchoring.funcs.link($.anchoring.settings.current);
         }
       }
     }
