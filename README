@@ -87,7 +87,7 @@ Or do custom functions based on HTML elements. These anchors will be defined by 
 
       // Tab effects
       $('#tabs .tab').removeClass('current');
-      $('#tabs #tab-'+data).addClass('current');
+      $('#tabs #tab_'+data).addClass('current');
 
       // Tab Area affects
       $('#areas .area').hide();
