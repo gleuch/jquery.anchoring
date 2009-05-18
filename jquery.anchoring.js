@@ -73,8 +73,8 @@ Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlike
     addFunc : function(name, func) {$.anchoring.funcs[name] = func;},
     browseHistory : function() {alert($.anchoring.history);},
     parse : function() {
-      if (/(\#)(.*)$/.test(window.location.href)) {
-        $.anchoring.anchor(window.location.href.replace(/^(.*)(\#)(.*)$/, '$3'));
+      if (/(\#)(.+)$/.test(window.location.href)) {
+        $.anchoring.anchor(window.location.href.replace(/^(.*)(\#)(.+)$/, '$3'));
         $.anchoring.settings.location = window.location.href;
       } else if (typeof($.anchoring.settings.default) == 'function') {
         $.anchoring.settings.skip = true;
