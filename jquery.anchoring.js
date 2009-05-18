@@ -14,6 +14,8 @@ Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlike
     var r = this.click(function() {$.anchoring.analyze(this); return false;});
 
     if (!$.anchoring.settings.init) {
+      $.anchoring.settings.anchor = window.location.href;
+
       $.anchoring.watch = setInterval(function() {
         if ($.anchoring.settings.location != window.location.href) {
           $.anchoring.settings.location = window.location.href;
@@ -28,14 +30,18 @@ Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlike
 
 
 	$.extend($.anchoring, {
-    settings: {xhr : false, dataType : 'JSON', init : false, current : false, page : false, location : window.location.href},
+    settings: {xhr : false, dataType : 'JSON', init : false, debug : false, current : false, anchor : false, page : false, location : window.location.href},
     history : [],
     loading : function() {},
     loaded : function() {$.anchoring.settings.xhr = false;},
     retrieve : function(obj) {
       if ($.anchoring.settings.xhr) $.anchoring.settings.xhr.abort();
-      obj = $.extend({url : $.anchoring.settings.current, cache : false, method : 'GET', dataType : $.anchoring.settings.dataType, complete : function() {$.anchoring.loaded();}, beforeSend : function() {$.anchoring.loading();}, success : function(response) {$(document).html(response);}, error : function(request) {if (request.status > 0) alert('Sorry, but an unknown error has occured in fetching '+ $.anchoring.settings.current +'.');}}, (typeof(obj) == 'object' ? obj : {}));
+      obj = $.extend({url : $.anchoring.settings.current, method : 'GET', dataType : $.anchoring.settings.dataType, complete : function() {$.anchoring.loaded();}, beforeSend : function() {$.anchoring.loading();}, success : function(response) {$(document).html(response);}, error : function(request) {if (request.status > 0) alert('Sorry, but an unknown error has occured in fetching '+ ($.anchoring.settings.debug ? $.anchoring.settings.current : 'this page') +'.');}}, (typeof(obj) == 'object' ? obj : {}));
       if (!(/^(http)/.test(obj.url))) obj.url = (window.location.href.replace(/(http|https)(\:\/\/)([a-z0-9\_\-\.\:]*)(\/)(.*)/i, '$1$2$3')) + obj.url;
+
+      // Appending cache issue if called url is the anchored url
+      if (obj.url == $.anchoring.settings.anchor) obj.url += (/\?/.test(obj.url) ? '&' : '?') + '_=' + (new Date()).getTime();
+
       $.anchoring.settings.xhr = $.ajax(obj);
     },
     funcs : {
@@ -93,9 +99,9 @@ Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlike
         $.anchoring.anchor(loc);
         $.anchoring.settings.location = base +'#'+ loc;
         window.location.href = $.anchoring.settings.location;
-        // Is this needed? Prob not since it stops animations & other events.
-        // if ($.browser.msie) document.execCommand('Stop');
-        // window.stop();
+        // is this needed? prob not (since it stops animations & other events.)
+        //if ($.browser.msie) document.execCommand('Stop');
+        //window.stop();
       }
     },
     is_f : function(func) {

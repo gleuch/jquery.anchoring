@@ -131,3 +131,4 @@ Upcoming Features
 Changelog
 
   - Moving certain vars into settings object and added default function.
+  - Removing cache:false from jQuery AJAX and forcing cache only if anchored url is the called url (primarily first request).
