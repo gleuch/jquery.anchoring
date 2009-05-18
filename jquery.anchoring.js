@@ -1,5 +1,5 @@
 /*
-jQuery.anchoring
+jQuery.anchored
 
 A jQuery plugin to allow AJAX permalinking with anchoring tags.
 Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlikemagma.com>.
@@ -93,8 +93,9 @@ Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlike
         $.anchoring.anchor(loc);
         $.anchoring.settings.location = base +'#'+ loc;
         window.location.href = $.anchoring.settings.location;
-        if ($.browser.msie) document.execCommand('Stop');
-        window.stop();
+        // Is this needed? Prob not since it stops animations & other events.
+        // if ($.browser.msie) document.execCommand('Stop');
+        // window.stop();
       }
     },
     is_f : function(func) {
