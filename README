@@ -1,12 +1,12 @@
 jQuery.anchoring
 
-------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
 
 A jQuery plugin to allow AJAX permalinking with anchoring tags.
 
 Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlikemagma.com>.
 
-------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
 
 Easy to use:
 
@@ -29,7 +29,7 @@ Easy to use:
 
   4. Start clicking away.
 
-------------------------------------------------------------------------------------------------  
+------------------------------------------------------------------------------------------------------
 
 Examples:
 
@@ -116,20 +116,37 @@ Or do custom functions based on HTML elements. These anchors will be defined by 
   </div>
 
 
-------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+Tested and works in the following browsers:
+  - Firefox 2.*, 3.* (and 3.5b)
+  - Safari 3.* & 4 beta
+  - Internet Explorer 8
+  
+Works with known issues in the following browsers:
+  - Internet Explorer 6 & 7
+
+******************************************************************************************************
+NOTE: IE 6 & 7 only allows forward & back button to navigate between actual pages, not anchors.
+      jQuery.anchoring does detect and load based on anchor tabs, but if a user clicks their
+      back or forward button in their browser, it will take to to the previous page they were on.
+******************************************************************************************************
+  
 
 
 Upcoming Features
 
-  - Using JSOND as the default callback method (instead of initial function with an AJAX success function() as the callback).
+  - Using JSOND as the default callback method (instead of initial function with an AJAX success 
+    function() as the callback).
   - Optimization and testing in older browsers.
   - Demo code and demo page.
 
-------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
 
 
 Changelog
 
   - Renaming 'default' to 'fallback' due to reserve word in WebKit/Safari.
   - Moving certain vars into settings object and added default function.
-  - Removing cache:false from jQuery AJAX and forcing cache only if anchored url is the called url (primarily first request).
+  - Removing cache:false from jQuery AJAX and forcing cache only if anchored url is the called url 
+    (primarily first request).
