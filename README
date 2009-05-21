@@ -33,7 +33,7 @@ Easy to use:
 
 Examples:
 
-Doing a custom AJAX request with default function.
+Doing a custom AJAX request with fallback function.
 
   JavaScript:
 
@@ -55,9 +55,9 @@ Doing a custom AJAX request with default function.
       });
     });
 
-    // Initializing with default function (which evals our function previously added above.
+    // Initializing with fallback function (which evals our function previously added above.
     $('a[rel^=anchor').anchoring({
-      default : function(item) {
+      fallback : function(item) {
         $.anchoring.funcs.search(item ? item : $.anchoring.settings.location);
       }
     });
@@ -94,9 +94,9 @@ Or do custom functions based on HTML elements. These anchors will be defined by 
       $('#areas #area_'+data).show();
     });
 
-    // Initialize and set default action.
+    // Initialize and set fallback action.
     $('a[rel^=anchor tab]').anchoring({
-      default : function() {
+      fallback : function() {
         // Always enable the first tab.
         $('#tab .tab:eq(0)').click();
       }
@@ -130,5 +130,6 @@ Upcoming Features
 
 Changelog
 
+  - Renaming 'default' to 'fallback' due to reserve word in WebKit/Safari.
   - Moving certain vars into settings object and added default function.
   - Removing cache:false from jQuery AJAX and forcing cache only if anchored url is the called url (primarily first request).

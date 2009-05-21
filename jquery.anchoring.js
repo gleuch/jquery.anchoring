@@ -30,7 +30,7 @@ Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlike
 
 
 	$.extend($.anchoring, {
-    settings: {xhr : false, dataType : 'JSON', init : false, debug : false, current : false, anchor : false, page : false, location : window.location.href},
+    settings: {xhr:false, dataType:'JSON', skip:false, init:false, debug:false, current:false, anchor:false, fallback:false, page:false, location:window.location.href},
     history : [],
     loading : function() {},
     loaded : function() {$.anchoring.settings.xhr = false;},
@@ -76,9 +76,9 @@ Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlike
       if (/(\#)(.+)$/.test(window.location.href)) {
         $.anchoring.anchor(window.location.href.replace(/^(.*)(\#)(.+)$/, '$3'));
         $.anchoring.settings.location = window.location.href;
-      } else if (typeof($.anchoring.settings.default) == 'function') {
+      } else if (typeof($.anchoring.settings.fallback) == 'function') {
         $.anchoring.settings.skip = true;
-        $.anchoring.settings.default();
+        $.anchoring.settings.fallback();
         $.anchoring.settings.skip = false;
       }
     },
@@ -115,9 +115,9 @@ Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlike
         // if matches an element id, then execute onclick command
         if ($($.anchoring.settings.current.replace(/\./, '#')).length > 0) {
           $($.anchoring.settings.current.replace(/\./, '#')).click();
-        // Else try to use default function
-        } else if (typeof($.anchoring.settings.default) == 'function') {
-          $.anchoring.settings.default($.anchoring.settings.current);
+        // Else try to use fallback function
+        } else if (typeof($.anchoring.settings.fallback) == 'function') {
+          $.anchoring.settings.fallback($.anchoring.settings.current);
         // Else do normal link request
         } else {
           $.anchoring.funcs.link($.anchoring.settings.current);
