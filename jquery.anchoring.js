@@ -86,18 +86,17 @@ Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlike
       if (item && item.id && item.id != '') $.anchoring.set(item.tagName.toLowerCase()+'.'+item.id);
     },
     set : function(loc) {
-      if ($.anchoring.settings.skip) {
-        $.anchoring.anchor('');
-        return;
-      }
+      if ($.anchoring.settings.skip) {$.anchoring.anchor(''); return;}
 
-      var base = (/(\#)(.*)$/.test(location.href) ? window.location.href.replace(/^(.*)(\#)(.*)$/, '$1') : window.location.href.replace(/\#/, ''));
-      var domain = base.replace(/(http|https)(\:\/\/)([a-z0-9\_\-\.\:]*)(\/)(.*)/i, '$1$2$3');
-      loc = loc.replace(new RegExp(domain, 'i'), '').replace(/(#.*)?$/, '');
+      var url = $.anchoring.url(window.location.href), 
+        m = new RegExp('^('+url.clean.replace(/\//, '\\/') +')(\\?)(.*)$', 'i');
 
-      if (loc != base.replace(new RegExp(domain, 'i'), '').replace(/(#.*)?$/, '') && loc != $.anchoring.settings.current) {
+      loc = loc.replace(new RegExp(url.domain, 'i'), '').replace(/(#.*)?$/, '');
+      if (loc.match(m)) loc = loc.replace(m, '$2$3');
+
+      if (loc != url.clean && loc != $.anchoring.settings.current) {
         $.anchoring.anchor(loc);
-        $.anchoring.settings.location = base +'#'+ loc;
+        $.anchoring.settings.location = url.url +'#'+ loc;
         window.location.href = $.anchoring.settings.location;
         // is this needed? prob not (since it stops animations & other events.)
         //if ($.browser.msie) document.execCommand('Stop');
@@ -108,19 +107,41 @@ Released by Greg Leuch <http://gleuch.com>, originally for Magma <http://hotlike
       eval("var is_f = (typeof($.anchoring.funcs."+func+") == 'function');");
       return is_f;
     },
+    url : function(str) {
+      var url = (/(\#)(.*)$/.test(str) ? str.replace(/^(.*)(\#)(.*)$/, '$1') : str.replace(/\#/, '')),
+        domain = url.replace(/(http|https)(\:\/\/)([a-z0-9\_\-\.\:]*)(\/)(.*)/i, '$1$2$3'),
+        path = url.replace(new RegExp(domain, 'i'), '').replace(/(#.*)?$/, ''),
+        clean = path.replace(/(\?.*)$/, '');
+      return {url:url, domain:domain, path:path, clean:clean};
+    },
     sniff : function() {
       $.anchoring.settings.init = true;
       $.anchoring.parse();
-      if ($.anchoring.settings.current) {
-        // if matches an element id, then execute onclick command
-        if ($($.anchoring.settings.current.replace(/\./, '#')).length > 0) {
-          $($.anchoring.settings.current.replace(/\./, '#')).click();
-        // Else try to use fallback function
-        } else if (typeof($.anchoring.settings.fallback) == 'function') {
-          $.anchoring.settings.fallback($.anchoring.settings.current);
-        // Else do normal link request
-        } else {
-          $.anchoring.funcs.link($.anchoring.settings.current);
+
+      // Attempt to sniff out the click function of the event, if an element exists with that href.
+
+      var em = $('a[href=\''+$.anchoring.settings.current+'\']:eq(0)');
+      if (em.length > 0) {
+        em.click();
+      } else {
+        if ($.anchoring.settings.current) {
+          if (/^\?/.test($.anchoring.settings.current)) {
+            var url = $.anchoring.url(window.location.href);
+            $.anchoring.settings.current = url.clean + $.anchoring.settings.current;
+          }
+
+          // if matches an element id, then execute onclick command
+          var em = $($.anchoring.settings.current.replace(/\./, '#'));
+          if (em.length > 0) {
+            em.click();
+
+          // Else try to use fallback function
+          } else if (typeof($.anchoring.settings.fallback) == 'function') {
+            $.anchoring.settings.fallback($.anchoring.settings.current);
+          // Else do normal link request
+          } else {
+            $.anchoring.funcs.link($.anchoring.settings.current);
+          }
         }
       }
     }
