@@ -147,7 +147,7 @@ Upcoming Features
 Changelog
 
   - Allowing shortened urls if requested URL base is same as current page URL base.
-      - i.e. converts  /videos/#/videos?page=2  into  /videos#?page=2
+      - i.e. converts  /videos/#/videos/?page=2  into  /videos/#?page=2
   - Renaming 'default' to 'fallback' due to reserve word in WebKit/Safari.
   - Moving certain vars into settings object and added default function.
   - Removing cache:false from jQuery AJAX and forcing cache only if anchored url is the called url 
